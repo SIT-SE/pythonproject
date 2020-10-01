@@ -1,61 +1,88 @@
-# Import
-from tkinter import *
-# Import allow us to create workbook on our own
-from openpyxl.workbook import Workbook
-# Import allow us to open excel that has ben created
-from openpyxl import load_workbook
+# note program need install xlrd
+import tkinter as tk
+from tkinter import filedialog, messagebox, ttk
+import pandas as pd
 
-# Set up the window (root widget)
-root = Tk()
+# initalise the tkinter GUI
+root = tk.Tk()
 
-# Open excel sheet
-# Create a wb instance to open my excel book
-wb = Workbook()
-# Now load the excel sheet
-# The excel is in GUI directory if not pls specify path
-wb = load_workbook('Covid-19 SG.xlsx')
+root.geometry("900x600")  # set the root dimensions
+root.pack_propagate(False)  # tells the root to not let the widgets inside it determine its size.
+root.resizable(0, 0)  # makes the root window fixed in size.
 
-# Create active sheet only one sheet in our case
-ws = wb.active
+# Frame for TreeView
+Tree_Frame = tk.LabelFrame(root, text="Excel Data")
+Tree_Frame.place(height=400, width=900)
 
-# Create variable for column A
-Date = ws['A']
-Daily_Confirmed = ws['B']
+# Frame for open file dialog
+file_frame = tk.LabelFrame(root, text="Open File")
+file_frame.place(height=150, width=400, rely=0.65, relx=0)
+
+# Buttons to read excel files
+browse_button = tk.Button(file_frame, text="Browse A File", command=lambda: File_dialog())
+browse_button.place(rely=0.65, relx=0.50)
+
+load_button = tk.Button(file_frame, text="Load File", command=lambda: Load_excel_data())
+load_button.place(rely=0.65, relx=0.30)
+
+# The file/file path text
+Selected_FLabel = ttk.Label(file_frame, text="No File Selected")
+Selected_FLabel.place(rely=0, relx=0)
+
+# Tree view widget in my 1st frame
+Tree_View1 = ttk.Treeview(Tree_Frame)
+Tree_View1.place(relheight=1, relwidth=1)
+
+# Scrolling bar to fit more data in
+TVScroll_y = tk.Scrollbar(Tree_Frame, orient='vertical', command=Tree_View1.yview)  # scolling feauture for y
+TVScroll_x = tk.Scrollbar(Tree_Frame, orient='horizontal', command=Tree_View1.xview)
+Tree_View1.configure(xscrollcommand=TVScroll_x.set, yscrollcommand=TVScroll_y.set)
+# Pack these in side
+TVScroll_x.pack(side='bottom', fill='x')
+TVScroll_y.pack(side='right', fill='y')
 
 
-def get_Date():
-    Dlist = ''
-    for cell in Date:
-        Dlist = f'{Dlist + str(cell.value)}'
-
-    Date_Label.config(text=Dlist)
-
-
-def get_DC():
-    DClist = ''
-    for cell in Daily_Confirmed:
-        DClist = f'{DClist + str(cell.value)}'
-
-    DC_Label.config(text=DClist)
+def File_dialog():
+    """This Function will open the file explorer and assign the chosen file path to label_file"""
+    filename = filedialog.askopenfilename(initialdir="/",
+                                          title="Select A File",
+                                          filetype=(("xlsx files", "*.xlsx"), ("All Files", "*.*")))
+    Selected_FLabel["text"] = filename
+    return None
 
 
-# Creating buttons to display Date
-button_Date = Button(root, text="Date", command=get_Date)
-button_Date.pack(pady=20)
+def Load_excel_data():
+    """If the file selected is valid this will load the file into the Treeview"""
+    file_path = Selected_FLabel["text"]
+    try:
+        # Store file name as a string
+        excel_filename = r"{}".format(file_path)
+        data_frame = pd.read_excel(excel_filename)
+    # if the above fail
+    except ValueError:
+        tk.messagebox.showerror("Information", "The file chosen is invalid!")
+        return None
+    except FileNotFoundError:
+        tk.messagebox.showerror("Information", f"No file named {file_path} found!")
 
-# Create a widget: Date
-Date_Label = Label(root, text="")
-# Pack
-Date_Label.pack(pady=20)
+    clear_data()
+    Tree_View1["column"] = list(data_frame.columns)
+    # Show only the headings
+    Tree_View1["show"] = "headings"
+    for column in Tree_View1["column"]:
+        Tree_View1.heading(column, text=column)  # let the column heading = column name
+    # turns the dataframe into a list of lists
+    dataframe_rows = data_frame.to_numpy().tolist()
+    # inserts each list into the treeview
+    for row in dataframe_rows:
+        Tree_View1.insert("", "end", values=row)
+    return None
 
-# Creating buttons to display Daily Case
-button_DC = Button(root, text="Daily_confirmed", command=get_DC)
-button_DC.pack(pady=20)
 
-# Create a widget: Label
-DC_Label = Label(root, text="")
-# Pack
-DC_Label.pack(pady=20)
+def clear_data():
+    Tree_View1.delete(*Tree_View1.get_children())
+    return None
+
 
 # Create a loop to check for end of program
 root.mainloop()
