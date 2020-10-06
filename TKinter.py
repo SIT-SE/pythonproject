@@ -1,9 +1,10 @@
 # note program need install xlrd
+import checkdataframes
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 import pandas as pd
 
-# initalise the tkinter GUI
+# initialised the tkinter GUI
 root = tk.Tk()
 
 root.geometry("900x600")  # set the root dimensions
@@ -55,8 +56,6 @@ def Load_excel_data():
     """If the file selected is valid this will load the file into the Treeview"""
     file_path = Selected_FLabel["text"]
     try:
-        # Store file name as a string
-        excel_filename = r"{}".format(file_path)
         data_frame = pd.read_excel(excel_filename)
     # if the above fail
     except ValueError:
