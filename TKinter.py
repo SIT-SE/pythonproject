@@ -47,7 +47,9 @@ def File_dialog():
     """This Function will open the file explorer and assign the chosen file path to label_file"""
     filename = filedialog.askopenfilename(initialdir="/",
                                           title="Select A File",
-                                          filetype=(("xlsx files", "*.xlsx"), ("All Files", "*.*")))
+                                          filetype=(("xlsx files", "*.xlsx"), ("text files", "*.txt"),
+                                                    ("csv files", "*.csv"),("json files", "*.json"),
+                                                    ("All Files", "*.*")))
     Selected_FLabel["text"] = filename
     return None
 
@@ -56,7 +58,7 @@ def Load_excel_data():
     """If the file selected is valid this will load the file into the Treeview"""
     file_path = Selected_FLabel["text"]
     try:
-        data_frame = pd.read_excel(excel_filename)
+        data_frame = checkdataframes.checkfiletype(file_path)
     # if the above fail
     except ValueError:
         tk.messagebox.showerror("Information", "The file chosen is invalid!")
