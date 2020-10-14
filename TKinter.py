@@ -34,13 +34,27 @@ Selected_FLabel.place(rely=0, relx=0)
 
 # Search Criterion
 search_button = tk.Button(root, text="Search Data", command=lambda: search_cri())
-search_button.pack(side=tk.BOTTOM)
+search_button.pack()
+search_button.place(x=300, y=525, height=50, width=100)
 
 # quit button
 quit_button = tk.Button(root, text="Quit", command=lambda: destroy())
 quit_button.pack(side=tk.BOTTOM, pady=5, ipady=5, ipadx=5)
 def destroy():
     root.destroy()
+
+# label to open browser
+openweb_label = tk.LabelFrame(root, text="Open webpage to view charts")
+openweb_label.place(height=100, width=200, x=600, y=400)
+
+# button to open webbrowser
+openweb_button = tk.Button(root, text="Open webpage", command=lambda: openweb())
+openweb_button.pack()
+openweb_button.place(x=650, y=425, height=50, width=100)
+new = 1
+url = "https://www.google.com"
+def openweb():
+    webbrowser.open(url, new=new)
 
 # Tree view widget in my 1st frame
 Tree_View1 = ttk.Treeview(Tree_Frame)
