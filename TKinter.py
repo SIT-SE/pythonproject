@@ -38,8 +38,8 @@ search_button.place(x=300, y=525, height=50, width=80)
 
 # quit button
 quit_button = tk.Button(root, text="Quit", command=lambda: destroy())
-quit_button.pack(side=tk.BOTTOM, pady=5, ipady=5, ipadx=5)
-
+quit_button.pack()
+quit_button.place(x=500, y=525, height=50, width=50)
 
 def destroy():
     root.destroy()
