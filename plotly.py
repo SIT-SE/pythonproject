@@ -1,6 +1,6 @@
 import pandas as pd
 import plotly
-import plotly.express as px
+import plotly
 
 import dash
 import dash_table
@@ -8,7 +8,9 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 
-df = pd.read_excel (r'C:\Users\cocov\Downloads\covidinasean.xlsx')
+
+
+df = pd.read_excel (r'C:\Users\mayma\Music\covid.xlsx')
 #dfsum = df.loc[df['iso_code'] == 'IDN', 'new_cases'].sum()
 
 # dfsum = df["total_cases"].sum()
