@@ -1,7 +1,7 @@
 """This function will be used by python program check file types and use pandas to read different file types."""
 # Imports
 import pandas as pd
-import searchcriterion
+
 
 
 def checkfiletype(file_path):
