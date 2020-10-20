@@ -1,8 +1,11 @@
 # note program need install xlrd
 import tkinter as tk
 import webbrowser
-from tkinter import filedialog, messagebox, ttk
+from tkinter import filedialog, messagebox, ttk, BOTTOM
 import checkdataframes
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import pandas as pd
 
 """GUI code"""
 # initialised the tkinter GUI
@@ -45,28 +48,14 @@ def destroy():
     root.destroy()
 
 
-"""# label to open graphing tool
-analyse_label = tk.LabelFrame(root, text="Open webpage to view charts")
+# label to open graphing tool
+analyse_label = tk.LabelFrame(root, text="Analyse Data using charts")
 analyse_label.place(height=100, width=200, x=600, y=415)
 
 # button to open graphing tool
-analyse_button = tk.Button(root, text="Open webpage", command=lambda: analyse_data())
+analyse_button = tk.Button(root, text="Analyse Data", command=lambda: analyse_data())
 analyse_button.pack()
-analyse_button.place(x=650, y=440, height=50, width=100) """
-
-# label to open browser
-openweb_label = tk.LabelFrame(root, text="Open webpage to view charts")
-openweb_label.place(height=100, width=200, x=600, y=400)
-
-# button to open webbrowser
-openweb_button = tk.Button(root, text="Open webpage", command=lambda: openweb())
-openweb_button.pack()
-openweb_button.place(x=650, y=425, height=50, width=100)
-new = 1
-url = "https://www.google.com"
-def openweb():
-    webbrowser.open(url, new=new)
-
+analyse_button.place(x=650, y=440, height=50, width=100)
 
 # Tree view widget in my 1st frame
 Tree_View1 = ttk.Treeview(Tree_Frame)
@@ -81,6 +70,8 @@ TVScroll_x.pack(side='bottom', fill='x')
 TVScroll_y.pack(side='right', fill='y')
 
 """ Open new window to search data """
+
+
 def search_cri():
     file_path = Selected_FLabel["text"]
     column_names = checkdataframes.get_columns(file_path)
@@ -94,9 +85,7 @@ def search_cri():
         selected = drop.get()
         data_frame = checkdataframes.checkfiletype(file_path)
         searched = search_box.get()
-        print(type(data_frame[selected]))
         searched_df = data_frame[data_frame[selected].astype(str).str.contains(searched)]
-        print(searched_df)
         Tree_View2["column"] = list(searched_df.columns)
         # Show only the headings
         Tree_View2["show"] = "headings"
@@ -179,15 +168,77 @@ def search_cri():
 def analyse_data():
     file_path = Selected_FLabel["text"]
     column_names = checkdataframes.get_columns(file_path)
+    chart_names = ['pie', 'bar', 'line', 'scatter']
     analyse_data = tk.Tk()
     analyse_data.title("Search data")
     analyse_data.geometry("800x600")  # set the root dimensions
-    analyse_data.pack_propagate(False) # tells the root to not let the widgets inside it determine its size.
+    analyse_data.pack_propagate(False)  # tells the root to not let the widgets inside it determine its size.
     analyse_data.resizable(0, 0)  # makes the root window fixed in size.
 
-    # Frame for analyse columns 
-    Search_Frame = tk.LabelFrame(search_data, text="Search Criterion")
-    Search_Frame.place(height=100, width=500, relx=0.01)
+    def back():
+        analyse_data.destroy()
+
+    def analyse_now():
+        selected_y = dropy.get()
+        selected_x = dropx.get()
+        selected_chart = dropCtype.get()
+        data_frame = checkdataframes.checkfiletype(file_path)
+        figure = plt.Figure(figsize=(5, 5), dpi=100)
+        ax = figure.add_subplot(111)
+
+        # Frame for Data chart
+        Chart_Frame = tk.LabelFrame(analyse_data, text="Display Chart")
+        Chart_Frame.place(height=460, width=785, rely=0.15, relx=0.01)
+
+        chart_type = FigureCanvasTkAgg(figure, Chart_Frame)
+        chart_type.get_tk_widget().pack()
+
+        if selected_chart == 'pie':
+            df = data_frame.groupby([selected_y]).sum()
+            df.plot(kind=selected_chart, y=selected_x, ax=ax)
+            ax.set_title(selected_y, 'Vs', selected_x)
+
+        elif selected_chart =='scatter':
+            data_frame.plot(kind=selected_chart,x=selected_x, y=selected_y, legend=True, ax=ax)
+            ax.set_title(selected_y, 'Vs', selected_x)
+
+        else:
+            df = data_frame[[selected_y, selected_x]].groupby(selected_y).sum()
+            df.plot(kind=selected_chart, legend=True, ax=ax)
+            ax.set_title(selected_y, 'Vs', selected_x)
+
+    # Frame for analyse columns
+    analyse_Frame = tk.LabelFrame(analyse_data, text="Analyse Data")
+    analyse_Frame.place(height=100, width=500, relx=0.01)
+
+    # y drop label search for customer
+    y_drop_label = tk.Label(analyse_Frame, text="Y Data: ")
+    y_drop_label.grid(row=0, column=0, padx=10, pady=10)
+    # Drop down Box - x col
+    dropy = ttk.Combobox(analyse_Frame, values=column_names)
+    dropy.current(0)
+    dropy.grid(row=0, column=1)
+    # y drop label search for customer
+    x_drop_label = tk.Label(analyse_Frame, text="X Data: ")
+    x_drop_label.grid(row=1, column=0, padx=10, pady=10)
+    # Drop down Box - y col
+    dropx = ttk.Combobox(analyse_Frame, values=column_names)
+    dropx.current(0)
+    dropx.grid(row=1, column=1)
+    # y drop label search for customer
+    type_drop_label = tk.Label(analyse_Frame, text="Chart Type: ")
+    type_drop_label.grid(row=0, column=2, padx=10, pady=10)
+    # Drop down Box - y col
+    dropCtype = ttk.Combobox(analyse_Frame, values=chart_names)
+    dropCtype.current(0)
+    dropCtype.grid(row=0, column=3)
+    # Entry box analyse Button customer
+    analyse_button = tk.Button(analyse_Frame, text="Analyse", command=analyse_now)  # add command
+    analyse_button.grid(row=1, column=3, padx=10)
+
+    # back button
+    back_button = tk.Button(analyse_data, text="Back", command=lambda: back())
+    back_button.pack(side=BOTTOM)
 
 
 """Functions for uploading files"""
