@@ -6,6 +6,7 @@ import checkdataframes
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import pandas as pd
+import pathlib
 from tkinter import *
 
 """GUI code"""
@@ -147,12 +148,15 @@ def search_cri():
     # Frame for TreeView Data search
     Search_Frame = tk.LabelFrame(search_data, text="Search Criterion")
     Search_Frame.place(height=100, width=500, relx=0.01)
+    
     # Entry box to search data
     search_box = tk.Entry(Search_Frame)
     search_box.grid(row=0, column=1, padx=10, pady=10)
+
     # Search box label search for customer
     search_box_label = tk.Label(Search_Frame, text="Search Data: ")
     search_box_label.grid(row=0, column=0, padx=10, pady=10)
+
     # Entry box search Button customer
     search_button = HoverButton(Search_Frame, bg="#66d982",  activebackground='#3fd163', text="Search", command=search_now)  # add command
     search_button.grid(row=1, column=0, padx=10)
@@ -174,6 +178,7 @@ def search_cri():
     TVScroll_y = tk.Scrollbar(Tree2_Frame, orient='vertical', command=Tree_View2.yview)  # scolling feauture for y
     TVScroll_x = tk.Scrollbar(Tree2_Frame, orient='horizontal', command=Tree_View2.xview)
     Tree_View2.configure(xscrollcommand=TVScroll_x.set, yscrollcommand=TVScroll_y.set)
+
     # Pack these in side
     TVScroll_x.pack(side='bottom', fill='x')
     TVScroll_y.pack(side='right', fill='y')
@@ -181,12 +186,15 @@ def search_cri():
     # Frame for TreeView Export
     Export_Frame = tk.LabelFrame(search_data, text="Export Data")
     Export_Frame.place(height=100, width=250, rely=0.82, relx=0.35)
+
     # Entry box to export file name
     export_box = tk.Entry(Export_Frame)
     export_box.grid(row=0, column=1, padx=5, pady=5)
+
     # Search box label search for customer
     export_box_label = tk.Label(Export_Frame, text="Search Data: ")
     export_box_label.grid(row=0, column=0, padx=10, pady=10)
+
     # Export button
     export_button = HoverButton(Export_Frame, text="Export to excel", bg="#508bc7",  activebackground='#66a2de', command=lambda: export())  # add command
     export_button.grid(row=1, column=0, padx=5, pady=5)
@@ -198,16 +206,57 @@ def search_cri():
     def back():
         search_data.destroy()
 
+    #check export file for special characters or blank input.
+    def checkFileName(export_to):
+        #check export file for special characters or blank input.
+        special_char = ".!@#$%^&*()-+"
+
+        if export_to == "":
+            print("Invalid file name! Please enter another file name, don't leave it blank this time :)")
+            
+            return False
+        
+        elif any(c in special_char for c in export_to):
+            print("You have entered an invalid filename with special characters! Run the program again.")
+            return False
+
+        else:
+            return True
+
+    def checkFilePath(comparedir):
+        path = pathlib.Path(comparedir)
+        if path.is_file():
+            print ("File already exists! Please enter another file name or select another directory")
+            return True
+        else:
+            return False
+
     def export():
         export_to = export_box.get()
         selected = drop.get()
         data_frame = checkdataframes.checkfiletype(file_path)
         searched = search_box.get()
-        searched_df = data_frame[data_frame[selected].astype(str).str.contains(searched)]
-        searched_df.to_excel(export_to + ".xlsx")
-        return None
+        
+        #ask for exporting directory
+        askdir = filedialog.askdirectory()
+        targetdir = askdir.replace("/", '\\')
+        comparedir = targetdir + "\\" + export_to + ".xlsx"
+            
+        if checkFileName(export_to) == False:
+        #need to find out a way to run program again.
+            exit()
+    
+        elif checkFilePath(comparedir) == True:
+            exit()
+
+        else:
+        # allow user to specify filename, then append to .xlsx
+                searched_df = data_frame[data_frame[selected].astype(str).str.contains(searched)]
+                searched_df.to_excel(targetdir + "\\" + export_to + ".xlsx")
 
 
+
+        
 """ Open new window to analyse data """
 
 
@@ -280,24 +329,30 @@ def analyse_data():
     # y drop label search for customer
     y_drop_label = tk.Label(analyse_Frame, text="Y Data: ")
     y_drop_label.grid(row=0, column=0, padx=10, pady=10)
+
     # Drop down Box - x col
     dropy = ttk.Combobox(analyse_Frame, values=column_names)
     dropy.current(0)
     dropy.grid(row=0, column=1)
+
     # y drop label search for customer
     x_drop_label = tk.Label(analyse_Frame, text="X Data: ")
     x_drop_label.grid(row=1, column=0, padx=10, pady=10)
+
     # Drop down Box - y col
     dropx = ttk.Combobox(analyse_Frame, values=column_names)
     dropx.current(0)
     dropx.grid(row=1, column=1)
+
     # y drop label search for customer
     type_drop_label = tk.Label(analyse_Frame, text="Chart Type: ")
     type_drop_label.grid(row=0, column=2, padx=10, pady=10)
+
     # Drop down Box - y col
     dropCtype = ttk.Combobox(analyse_Frame, values=chart_names)
     dropCtype.current(0)
     dropCtype.grid(row=0, column=3)
+
     # Entry box analyse Button customer
     analyse_button = HoverButton(analyse_Frame, bg="#508bc7",  activebackground='#66a2de', text="Analyse", command=analyse_now)  # add command
     analyse_button.grid(row=1, column=3, padx=10)
