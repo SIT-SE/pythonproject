@@ -6,6 +6,7 @@ import checkdataframes
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import pandas as pd
+from tkinter import *
 
 """GUI code"""
 # initialised the tkinter GUI
@@ -14,6 +15,37 @@ root = tk.Tk()
 root.geometry("900x600")  # set the root dimensions
 root.pack_propagate(False)  # tells the root to not let the widgets inside it determine its size.
 root.resizable(0, 0)  # makes the root window fixed in size.
+
+# Creating Menubar
+menubar = Menu(root)
+
+# Adding File Menu and commands
+file = Menu(menubar, tearoff=0)
+menubar.add_cascade(label='File', menu=file)
+file.add_command(label='Open...', command=lambda: [File_dialog(),Load_excel_data()])
+file.add_separator()
+file.add_command(label='Exit', command=root.destroy)
+
+# Adding Edit Menu and commands
+Search = Menu(menubar, tearoff=0)
+menubar.add_cascade(label='Search', menu=Search)
+Search.add_command(label='Search Data', command=lambda: search_cri())
+
+#Adding Analyse Menu
+Analysis = Menu(menubar, tearoff=0)
+menubar.add_cascade(label='Analyse', menu=Analysis)
+Analysis.add_command(label='Analyse Charts', command=lambda: analyse_data())
+
+# Adding Help Menu
+help_ = Menu(menubar, tearoff=0)
+menubar.add_cascade(label='Help', menu=help_)
+help_.add_command(label='Tk Help', command=None)
+help_.add_command(label='Demo', command=None)
+help_.add_separator()
+help_.add_command(label='About Tk', command=None)
+
+# display Menu
+root.config(menu=menubar)
 
 # Frame for TreeView
 Tree_Frame = tk.LabelFrame(root, text="Excel Data")
@@ -177,6 +209,15 @@ def analyse_data():
 
     def back():
         analyse_data.destroy()
+        
+    def popupmsg(msg):
+        popup = tk.Tk()
+        popup.wm_title("!")
+        label = ttk.Label(popup, text=msg, font=("Helvetica", 10))
+        label.pack(side="top", fill="x", pady=10)
+        B1 = ttk.Button(popup, text="Okay", command=popup.destroy)
+        B1.pack()
+        popup.mainloop() 
 
     def analyse_now():
         selected_y = dropy.get()
@@ -192,20 +233,31 @@ def analyse_data():
 
         chart_type = FigureCanvasTkAgg(figure, Chart_Frame)
         chart_type.get_tk_widget().pack()
+        
+        try:
+            if selected_chart == 'pie':
+                df = data_frame.groupby([selected_y]).sum()
+                df.plot(kind=selected_chart, y=selected_x, ax=ax)
+                ax.set_title(f"{selected_y}" " Vs " f"{selected_x}")
 
-        if selected_chart == 'pie':
-            df = data_frame.groupby([selected_y]).sum()
-            df.plot(kind=selected_chart, y=selected_x, ax=ax)
-            ax.set_title(selected_y, 'Vs', selected_x)
+            elif selected_chart =='scatter':
+                data_frame.plot(kind=selected_chart,x=selected_x, y=selected_y, legend=True, ax=ax)
+                ax.set_title(f"{selected_y}" " Vs " f"{selected_x}")
+                plt.setp(ax.get_xticklabels(), fontsize=8, rotation='30')
 
-        elif selected_chart =='scatter':
-            data_frame.plot(kind=selected_chart,x=selected_x, y=selected_y, legend=True, ax=ax)
-            ax.set_title(selected_y, 'Vs', selected_x)
-
-        else:
-            df = data_frame[[selected_y, selected_x]].groupby(selected_y).sum()
-            df.plot(kind=selected_chart, legend=True, ax=ax)
-            ax.set_title(selected_y, 'Vs', selected_x)
+            else:
+                df = data_frame[[selected_y, selected_x]].groupby(selected_x).sum()
+                df.plot(kind=selected_chart, legend=True, ax=ax)
+                ax.set_title(f"{selected_y}" " Vs " f"{selected_x}")
+                plt.setp(ax.get_xticklabels(), fontsize=8, rotation='30')
+                
+        except KeyError:
+            popupmsg("This chart is not graphical!")
+        except TypeError:
+            popupmsg("This chart is not graphical!")
+        except ValueError:
+            popupmsg("This chart is not graphical!")
+            
 
     # Frame for analyse columns
     analyse_Frame = tk.LabelFrame(analyse_data, text="Analyse Data")
