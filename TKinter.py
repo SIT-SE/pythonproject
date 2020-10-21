@@ -16,6 +16,20 @@ root.geometry("900x600")  # set the root dimensions
 root.pack_propagate(False)  # tells the root to not let the widgets inside it determine its size.
 root.resizable(0, 0)  # makes the root window fixed in size.
 
+# button onhover styling
+class HoverButton(tk.Button):
+    def __init__(self, master, **kw):
+        tk.Button.__init__(self,master=master,**kw)
+        self.defaultBackground = self["background"]
+        self.bind("<Enter>", self.on_enter)
+        self.bind("<Leave>", self.on_leave)
+
+    def on_enter(self, e):
+        self['background'] = self['activebackground']
+
+    def on_leave(self, e):
+        self['background'] = self.defaultBackground
+
 # Creating Menubar
 menubar = Menu(root)
 
@@ -56,10 +70,10 @@ file_frame = tk.LabelFrame(root, text="Open File")
 file_frame.place(height=100, width=300, rely=0.7, relx=0.01)
 
 # Buttons to read excel files
-browse_button = tk.Button(file_frame, text="Browse A File", command=lambda: File_dialog())
+browse_button = HoverButton(file_frame, bg="#508bc7",  activebackground='#66a2de', font="Helvetica 8", text="Browse A File", command=lambda: File_dialog())
 browse_button.place(rely=0.65, relx=0.50)
 
-load_button = tk.Button(file_frame, text="Load File", command=lambda: Load_excel_data())
+load_button = HoverButton(file_frame, bg="#66d982",  activebackground='#3fd163', font="Helvetica 8", text="Load File", command=lambda: Load_excel_data())
 load_button.place(rely=0.65, relx=0.30)
 
 # The file/file path text
@@ -67,12 +81,12 @@ Selected_FLabel = ttk.Label(file_frame, text="No File Selected")
 Selected_FLabel.place(rely=0, relx=0)
 
 # Search Criterion
-search_button = tk.Button(root, text="Search Data", command=lambda: search_cri())
+search_button = HoverButton(root, bg="#b660d1",  activebackground='#c976e3', text="Search Data", font="Helvetica 9", command=lambda: search_cri())
 search_button.pack()
 search_button.place(x=300, y=525, height=50, width=80)
 
 # quit button
-quit_button = tk.Button(root, text="Quit", command=lambda: destroy())
+quit_button = HoverButton(root, bg="#cc5867",  activebackground='#de6a79', font="Helvetica 9", text="Quit", command=lambda: destroy())
 quit_button.pack()
 quit_button.place(x=500, y=525, height=50, width=50)
 
@@ -85,7 +99,7 @@ analyse_label = tk.LabelFrame(root, text="Analyse Data using charts")
 analyse_label.place(height=100, width=200, x=600, y=415)
 
 # button to open graphing tool
-analyse_button = tk.Button(root, text="Analyse Data", command=lambda: analyse_data())
+analyse_button = HoverButton(root, text="Analyse Data", bg="#66d982",  activebackground='#3fd163', font="Helvetica 10",command=lambda: analyse_data())
 analyse_button.pack()
 analyse_button.place(x=650, y=440, height=50, width=100)
 
@@ -140,7 +154,7 @@ def search_cri():
     search_box_label = tk.Label(Search_Frame, text="Search Data: ")
     search_box_label.grid(row=0, column=0, padx=10, pady=10)
     # Entry box search Button customer
-    search_button = tk.Button(Search_Frame, text="Search", command=search_now)  # add command
+    search_button = HoverButton(Search_Frame, bg="#66d982",  activebackground='#3fd163', text="Search", command=search_now)  # add command
     search_button.grid(row=1, column=0, padx=10)
 
     # Drop down Box
@@ -174,11 +188,11 @@ def search_cri():
     export_box_label = tk.Label(Export_Frame, text="Search Data: ")
     export_box_label.grid(row=0, column=0, padx=10, pady=10)
     # Export button
-    export_button = tk.Button(Export_Frame, text="Export to excel", command=lambda: export())  # add command
+    export_button = HoverButton(Export_Frame, text="Export to excel", bg="#508bc7",  activebackground='#66a2de', command=lambda: export())  # add command
     export_button.grid(row=1, column=0, padx=5, pady=5)
 
     # back button
-    back_button = tk.Button(Export_Frame, text="Back", command=lambda: back())
+    back_button = HoverButton(Export_Frame, bg="#cc5867",  activebackground='#de6a79', text="Back", command=lambda: back())
     back_button.grid(row=1, column=1, padx=5, pady=5)
 
     def back():
@@ -285,11 +299,11 @@ def analyse_data():
     dropCtype.current(0)
     dropCtype.grid(row=0, column=3)
     # Entry box analyse Button customer
-    analyse_button = tk.Button(analyse_Frame, text="Analyse", command=analyse_now)  # add command
+    analyse_button = HoverButton(analyse_Frame, bg="#508bc7",  activebackground='#66a2de', text="Analyse", command=analyse_now)  # add command
     analyse_button.grid(row=1, column=3, padx=10)
 
     # back button
-    back_button = tk.Button(analyse_data, text="Back", command=lambda: back())
+    back_button = HoverButton(analyse_data, bg="#cc5867",  activebackground='#de6a79', text="Back", command=lambda: back())
     back_button.pack(side=BOTTOM)
 
 
