@@ -192,7 +192,7 @@ def search_cri():
     export_box.grid(row=0, column=1, padx=5, pady=5)
 
     # Search box label search for customer
-    export_box_label = tk.Label(Export_Frame, text="Search Data: ")
+    export_box_label = tk.Label(Export_Frame, text="New file name: ")
     export_box_label.grid(row=0, column=0, padx=10, pady=10)
 
     # Export button
