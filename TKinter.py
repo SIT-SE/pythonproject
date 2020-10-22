@@ -1,11 +1,9 @@
 # note program need install xlrd
 import tkinter as tk
-import webbrowser
-from tkinter import filedialog, messagebox, ttk, BOTTOM
+from tkinter import filedialog, messagebox, ttk
 import checkdataframes
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import pandas as pd
 import pathlib
 from tkinter import *
 
