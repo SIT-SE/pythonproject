@@ -1,34 +1,33 @@
-import pandas as pd
+import pandas as pd #install pandas
 import plotly
-import plotly
+import plotly.express as px #install plotly
 
-import dash
+import dash #install dash
 import dash_table
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 
-
-
-df = pd.read_excel (r'C:\Users\mayma\Music\covid.xlsx')
-#dfsum = df.loc[df['iso_code'] == 'IDN', 'new_cases'].sum()
-
-# dfsum = df["total_cases"].sum()
-# df_sum=pd.DataFrame(data=dfsum).T
-# df_sum=df_sum.reindex(columns=df.columns)
-# df_sum
-
-# fig = px.bar(df, x = 'location', y = 'total_cases', title='Total new cases per week')
-# fig.show()
+df = pd.read_excel (r'C:\Users\cocov\Downloads\covidinasean.xlsx') #read excel file
 
 app = dash.Dash(__name__)
+server = app.server
+app.title = 'COVID-19 Data Analysis'
+
 
 dff = df.groupby('location', as_index=False)[['total_deaths','total_cases']].sum()
 print (dff[:10])
 
-app.layout = html.Div([
+app.layout = html.Div([ #creating dash layout
     html.Div([
-        dash_table.DataTable(
+        html.H1('COVID-19 Data Analysis'),
+        html.Div([
+            html.P('Analysis of COVID-19 in ASEAN countries'),
+
+        ])
+    ], style={'text-align': 'center'}),
+    html.Div([
+        dash_table.DataTable( #datatable
             id='datatable_id',
             data=dff.to_dict('records'),
             columns=[
@@ -56,14 +55,16 @@ app.layout = html.Div([
         ),
     ],className='row'),
 
+
     html.Div([
         html.Div([
-            dcc.Dropdown(id='linedropdown',
+            dcc.Dropdown(id='linedropdown', #dropdown for line graph
                 options=[
-                         {'label': 'Deaths', 'value': 'total_deaths'},
-                         {'label': 'Cases', 'value': 'total_cases'}
+                        {'label': 'Total COVID Cases', 'value': 'total_cases'},
+                         {'label': 'Total COVID Deaths', 'value': 'total_deaths'}
+
                 ],
-                # value='total_deaths',
+                value='total_cases',
                 multi=False,
                 clearable=False
             ),
@@ -76,21 +77,22 @@ app.layout = html.Div([
     html.Div([
 
         html.Div([
-            dcc.Graph(id='linechart'),
+            dcc.Graph(id='linechart'), #line graph
         ],className='six columns'),
         html.Div([
-            dcc.Dropdown(id='piedropdown',
+            dcc.Dropdown(id='piedropdown', #dropdown for pie
                          options=[
-                             {'label': 'Deaths', 'value': 'total_deaths'},
-                             {'label': 'Cases', 'value': 'total_cases'}
+                             {'label': 'Total COVID Cases', 'value': 'total_cases'},
+                             {'label': 'Total COVID Deaths', 'value': 'total_deaths'}
+
                          ],
-                         # value='total_cases',
+                         value='total_cases',
                          multi=False,
                          clearable=False
                          ),
         ], className='six columns'),
         html.Div([
-            dcc.Graph(id='piechart'),
+            dcc.Graph(id='piechart'), #pie chart
         ],className='six columns'),
 
     ],className='row'),
@@ -106,7 +108,7 @@ app.layout = html.Div([
      Input('piedropdown', 'value'),
      Input('linedropdown', 'value')]
 )
-def update_data(chosen_rows,piedropval,linedropval):
+def update_data(chosen_rows,piedropval,linedropval): #function to filter data from datatable
     if len(chosen_rows)==0:
         df_filterd = dff[dff['location'].isin(['Brunei','Cambodia','Indonesia','Malaysia', 'Laos', 'Myanmar', 'Philippines', 'Singapore', 'Thailand', 'Timor'])]
     else:
@@ -120,7 +122,6 @@ def update_data(chosen_rows,piedropval,linedropval):
             hole=.3,
             labels={'Countries':'location'}
             )
-
 
 
     list_chosen_countries=df_filterd['location'].tolist()
