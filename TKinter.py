@@ -396,7 +396,8 @@ def analyse_data():
     # back button
     back_button = HoverButton(analyse_data, bg="#cc5867", activebackground='#de6a79', text="Back",
                               command=lambda: back())
-    back_button.pack(side=BOTTOM)
+    back_button.pack()
+    back_button.place(x=400, y=560, height=30, width=50)
 
 
 """Functions for uploading files"""
